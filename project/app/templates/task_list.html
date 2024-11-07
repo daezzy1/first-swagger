@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task List</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4">Tasks</h1>
+
+        <div class="dropdown mb-4">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Filter Tasks
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="?status=done">Show Done Tasks</a>
+                <a class="dropdown-item" href="?status=not_done">Show Not Done Tasks</a>
+                <a class="dropdown-item" href="?">Show All Tasks</a>
+            </div>
+        </div>
+
+        <ul class="list-group">
+            {% for task in tasks %}
+                <li class="list-group-item">
+                    <input type="checkbox" class="task-checkbox" data-id="{{ task.id }}" {% if task.completed %}checked{% endif %}>
+                    {{ task.name }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.task-checkbox').change(function() {
+                var taskId = $(this).data('id');
+                $.ajax({
+                    url: '/update_task/' + taskId + '/',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (!response.success) {
+                            alert('Error updating task status');
+                        }
+                    },
+                    error: function() {
+                        alert('Error updating task status');
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>
